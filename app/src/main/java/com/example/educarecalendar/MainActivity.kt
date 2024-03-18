@@ -31,9 +31,7 @@ class MainActivity : ComponentActivity() {
             CalendarParent(
                 monthName = calendarSetter("month"),
                 year = calendarSetter("year"),
-                eventArray = eventArray,
-                this,
-                modifier = Modifier.fillMaxSize()
+                eventArray = eventArray
                 )
             }
         },5000)
