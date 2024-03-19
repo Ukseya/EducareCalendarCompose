@@ -1,6 +1,7 @@
 package com.example.educarecalendar
 
 import android.os.Handler
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -22,6 +23,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -51,8 +53,17 @@ fun CalendarParent(
 ) {
     val colorArray: Array<Color> = arrayOf(Col1,Col2,Col3,Col4,Col5)
     val width = (LocalConfiguration.current.screenWidthDp - 25)/7
-    var firstDayOfMonth = 1
-    var amountOfDays = 31
+    var yearInternal = remember { mutableIntStateOf(year.toInt()) }
+    var monthNum = remember {mutableIntStateOf(monthNumReturner(monthName))}
+    val todayMonthFDay = remember {
+        mutableStateOf(LocalDate.of(
+        yearInternal.intValue,
+        monthNum.intValue,
+        1).dayOfWeek.toString())}
+    var todayMonthFDayNum = remember { mutableIntStateOf(fDayNumReturner(todayMonthFDay.value))}
+    var amountOfDays = remember { mutableIntStateOf(amountODaysReturner(monthNum.intValue,yearInternal.intValue))}
+    var monthNameInternal = remember { mutableStateOf(monthNameReturner(monthNum.intValue)) }
+    var visible = remember{ mutableStateOf(true)}
     Box(modifier = Modifier
         .fillMaxSize()
         .padding(15.dp, 15.dp, 15.dp)
@@ -69,27 +80,81 @@ fun CalendarParent(
                     .fillMaxWidth()
                     .background(Color.White),
             ) {
-                MonthLeftButton()
+                MonthLeftButton(
+                    onClick = {
+                        if (monthNum.intValue==1){
+                            yearInternal.intValue--
+                            monthNum.intValue = 12
+                        }else monthNum.intValue--
+                        todayMonthFDay.value = LocalDate.of(
+                            yearInternal.intValue,
+                            monthNum.intValue,
+                            1
+                            ).dayOfWeek.toString()
+                        todayMonthFDayNum.value = fDayNumReturner(todayMonthFDay.value)
+                        amountOfDays.intValue = amountODaysReturner(monthNum.intValue,yearInternal.intValue)
+                        monthNameInternal.value = monthNameReturner(monthNum.intValue)
+
+                        Log.d("DEBUG","${monthNum.intValue} + ${todayMonthFDay.value} + ${monthNameInternal.value}")
+                    }
+                )
                 MonthName(
                     modifier = Modifier.weight(1f),
-                    month = monthName,
-                    year = year
+                    month = monthNameInternal.value,
+                    year = yearInternal.intValue.toString(),
+                    onClick = {visible.value = true}
                     )
-                MonthRightButton()
+                MonthRightButton(
+                    onClick = {
+                        if (monthNum.intValue==12){
+                            yearInternal.intValue++
+                            monthNum.intValue = 1
+                        }else monthNum.intValue++
+                        todayMonthFDay.value = LocalDate.of(
+                            yearInternal.intValue,
+                            monthNum.intValue,
+                            1
+                        ).dayOfWeek.toString()
+                        todayMonthFDayNum.intValue = fDayNumReturner(todayMonthFDay.value)
+                        amountOfDays.intValue = amountODaysReturner(monthNum.intValue,yearInternal.intValue)
+                        monthNameInternal.value = monthNameReturner(monthNum.intValue)
+                        Log.d("DEBUG","${monthNum.intValue}")
+                    }
+                )
             }
             WeekHeader(width)
-            val handler = Handler()
             CalendarDayContainer(
-                firstDayOfMonth = 7,
-                amountOfDays = 31,
+                firstDayOfMonth = todayMonthFDayNum.intValue,
+                amountOfDays = amountOfDays.intValue,
                 colorArray = colorArray,
                 width = width,
                 eventArray,
-                monthName,
-                year)
+                monthNameInternal.value,
+                yearInternal.intValue.toString())
 
         }
     }
+    MonthPicker(
+        visible = visible.value,
+        monthNum = monthNum.intValue,
+        year = yearInternal.intValue,
+        confirmButtonClicked = {month_, year_ ->
+            monthNum.intValue = month_
+            yearInternal.intValue = year_
+            todayMonthFDay.value = LocalDate.of(
+                yearInternal.intValue,
+                monthNum.intValue,
+                1
+            ).dayOfWeek.toString()
+            todayMonthFDayNum.intValue = fDayNumReturner(todayMonthFDay.value)
+            amountOfDays.intValue = amountODaysReturner(monthNum.intValue,yearInternal.intValue)
+            monthNameInternal.value = monthNameReturner(monthNum.intValue)
+            visible.value = false
+        },
+        cancelButtonClicked = {
+            visible.value = false
+        }
+        )
 }
 
 @Composable
@@ -97,7 +162,8 @@ fun WeekHeader(width: Int) {
     Row(
         Modifier
             .fillMaxWidth()
-            .background(Color.White)) {
+            .background(Color.White)
+            .padding(10.dp)) {
 
         val daysArray = arrayOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
         for (i in 0 until 7){
@@ -225,34 +291,42 @@ fun EventInfoMenu(title: String, desc: String, date: String, visibility: Float) 
 fun MonthName(
     month: String,
     year: String,
-    modifier: Modifier
+    modifier: Modifier,
+    onClick: () -> Unit
 ) {
     Text(text = "$month, $year",
         fontSize = 30.sp,
         fontWeight = FontWeight.Bold,
         textAlign = TextAlign.Center,
         modifier = modifier
+            .clickable {onClick()}
     )
 }
 @Composable
-fun MonthLeftButton() {
+fun MonthLeftButton(
+    onClick: () -> Unit
+) {
     Image(
         painter = painterResource(id = R.drawable.baseline_arrow_left_24),
         contentDescription ="Back Button",
         modifier =
         Modifier
             .size(40.dp)
-            .border(2.dp, Color.Black))
+            .border(2.dp, Color.Black)
+            .clickable { onClick() })
 }
 @Composable
-fun MonthRightButton() {
+fun MonthRightButton(
+    onClick: () -> Unit
+) {
     Image(
         painter = painterResource(id =R.drawable.baseline_arrow_right_24),
         contentDescription ="Back Button",
         modifier =
         Modifier
             .size(40.dp)
-            .border(2.dp, Color.Black))
+            .border(2.dp, Color.Black)
+            .clickable { onClick() })
 }
 @Composable
 fun DayBox(
@@ -366,5 +440,45 @@ private fun monthNumReturner(monthName: String): Int{
         "November" -> 11
         "December" -> 12
         else -> throw IllegalArgumentException("Invalid month name: $monthName")
+    }
+}
+
+private fun monthNameReturner(monthNum: Int):String{
+    return when (monthNum) {
+        1 -> "January"
+        2 -> "February"
+        3 -> "March"
+        4 -> "April"
+        5 -> "May"
+        6 -> "June"
+        7 -> "July"
+        8 -> "August"
+        9 -> "September"
+        10 -> "October"
+        11 -> "November"
+        12 -> "December"
+        else -> throw IllegalArgumentException("Invalid month name: $monthNum")
+    }
+}
+
+private fun amountODaysReturner(monthNum: Int, year: Int):Int{
+    return when(monthNum){
+        1,3,5,7,8,10,12 -> 31
+        4,6,9,11 -> 30
+        2-> if (year%4==0){29}else 28
+        else -> {throw IllegalArgumentException("Invalid month number: $monthNum")}
+    }
+}
+
+private fun fDayNumReturner(dayName:String):Int{
+    return when(dayName){
+        "MONDAY" -> 1
+        "TUESDAY" -> 2
+        "WEDNESDAY" -> 3
+        "THURSDAY" -> 4
+        "FRIDAY" -> 5
+        "SATURDAY" -> 6
+        "SUNDAY" -> 7
+        else -> {throw IllegalArgumentException("Invalid month name: $dayName")}
     }
 }
