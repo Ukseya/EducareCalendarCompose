@@ -32,15 +32,11 @@ fun requestEvents(context: Context){
     params["db"] = "educare_2023_2024"
     params["student_idx"] = "8443"
     //val eventArray = ArrayList<Events>()
-    Log.d("neden calismiyon aq", "$params")
 
     val stringRequest = object : StringRequest(
         Request.Method.POST, url,
         Response.Listener { response ->
-            Log.d("DEBUG","Debug in response listener")
             try {
-                Log.d("DEBUG","Debug in response listener try")
-
                 val jsonObject = JSONObject(response)
                 val jsonArray : JSONArray = jsonObject.getJSONArray("data")
 
@@ -59,8 +55,6 @@ fun requestEvents(context: Context){
 
                 }
 
-                Log.d("eventArray", eventArrayEvents.toString())
-
             } catch (e: JSONException) {
                 e.printStackTrace()
             }
@@ -73,8 +67,6 @@ fun requestEvents(context: Context){
         }
     }
     requestQueue.add(stringRequest)
-    Log.d("eventArraySizeInEvents","${eventArrayEvents.size}")
-    //return eventArray
 }
 
 fun toDate(date: String): LocalDate {
@@ -109,7 +101,6 @@ fun dupeDays(eventArray: ArrayList<Events>): HashMap<LocalDate, Int>{
             hashDate[event] = 1
         }
     }
-    Log.d("hashDate in DupeDays", "$hashDate")
     return hashDate
 }
 
@@ -133,9 +124,6 @@ fun checkEventAmountPerDay(
     month: Int,
     day: Int): Int{
     val date = LocalDate.of(year, month, day)
-    //val hashDate = dupeDays(oneDateArrayToRuleThemAll(eventArray))
-    Log.d("hash", "$hashDate[date]")
-    Log.d("hash", "$date")
     return if (hashDate[date]==null) 0
     else hashDate[date]!!
 

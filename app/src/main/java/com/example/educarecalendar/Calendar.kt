@@ -64,6 +64,7 @@ fun CalendarParent(
     var amountOfDays = remember { mutableIntStateOf(amountODaysReturner(monthNum.intValue,yearInternal.intValue))}
     var monthNameInternal = remember { mutableStateOf(monthNameReturner(monthNum.intValue)) }
     var visible = remember{ mutableStateOf(true)}
+
     Box(modifier = Modifier
         .fillMaxSize()
         .padding(15.dp, 15.dp, 15.dp)
@@ -95,7 +96,6 @@ fun CalendarParent(
                         amountOfDays.intValue = amountODaysReturner(monthNum.intValue,yearInternal.intValue)
                         monthNameInternal.value = monthNameReturner(monthNum.intValue)
 
-                        Log.d("DEBUG","${monthNum.intValue} + ${todayMonthFDay.value} + ${monthNameInternal.value}")
                     }
                 )
                 MonthName(
@@ -118,7 +118,6 @@ fun CalendarParent(
                         todayMonthFDayNum.intValue = fDayNumReturner(todayMonthFDay.value)
                         amountOfDays.intValue = amountODaysReturner(monthNum.intValue,yearInternal.intValue)
                         monthNameInternal.value = monthNameReturner(monthNum.intValue)
-                        Log.d("DEBUG","${monthNum.intValue}")
                     }
                 )
             }

@@ -14,20 +14,8 @@ import java.util.Locale
 
 class MainActivity : ComponentActivity() {
 
-
-
-
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        val handler = Handler()
-
-//        handler.postDelayed({
-            //val eventArray = eventArrayEvents
-
-
-
 
         setContent {
             var wait = remember { mutableStateOf(false) }
@@ -44,23 +32,18 @@ class MainActivity : ComponentActivity() {
                 )
             }
         }
-//        },5000)
-
     }
-
     private fun calendarSetter(whtDYouWant: String): String{
         return when (whtDYouWant) {
             "year" -> {
                 LocalDate.now().year.toString()
             }
-
             "month" -> {
                 LocalDate.now().month
                     .toString()
                     .lowercase(Locale.getDefault())
                     .capitalize()
             }
-
             else -> "Placeholder"
         }
     }
