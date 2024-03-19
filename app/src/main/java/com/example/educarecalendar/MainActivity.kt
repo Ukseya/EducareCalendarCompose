@@ -17,12 +17,16 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+
         setContent {
             var wait = remember { mutableStateOf(false) }
             var eventArray = remember { mutableStateOf(eventArrayEvents) }
+            var visible = remember { mutableStateOf(true) }
+            var monthName = remember { mutableStateOf(calendarSetter("month")) }
+            var year = remember { mutableStateOf(calendarSetter("year")) }
             requestEvents(this)
-            eventArray.value = eventArrayEvents
-            Log.d("eventArraySizeInMain","${eventArray.value.size}")
+
+            Log.d("DEBUG","size in main ${eventArray.value.size}")
             wait.value = eventArray.value.size!=0
             if (wait.value) {
                 CalendarParent(
@@ -31,6 +35,20 @@ class MainActivity : ComponentActivity() {
                     eventArray = eventArray.value
                 )
             }
+            MonthPicker(
+                visible = visible.value,
+                monthNum = calendarSetter("monthNum").toInt(),
+                year = calendarSetter("year").toInt(),
+                confirmButtonClicked = {month_, year_ ->
+                    monthName.value = monthNameReturner(month_)
+                    year.value = year_.toString()
+                    visible.value = false
+                    eventArray.value = eventArrayEvents
+                },
+                cancelButtonClicked = {
+                    visible.value = false
+                }
+            )
         }
     }
     private fun calendarSetter(whtDYouWant: String): String{
@@ -44,6 +62,7 @@ class MainActivity : ComponentActivity() {
                     .lowercase(Locale.getDefault())
                     .capitalize()
             }
+            "monthNum" -> {LocalDate.now().monthValue.toString()}
             else -> "Placeholder"
         }
     }

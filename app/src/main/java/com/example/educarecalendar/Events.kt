@@ -31,7 +31,7 @@ fun requestEvents(context: Context){
     params["school_group"] = "educare"
     params["db"] = "educare_2023_2024"
     params["student_idx"] = "8443"
-    //val eventArray = ArrayList<Events>()
+    eventArrayEvents = ArrayList<Events>()
 
     val stringRequest = object : StringRequest(
         Request.Method.POST, url,
@@ -39,6 +39,7 @@ fun requestEvents(context: Context){
             try {
                 val jsonObject = JSONObject(response)
                 val jsonArray : JSONArray = jsonObject.getJSONArray("data")
+                Log.d("DEBUG","Debug 123")
 
 
                 for (i in 0 until jsonArray.length()) {
@@ -51,9 +52,8 @@ fun requestEvents(context: Context){
                     val datesArray = generateDates(startDate, endDate)
                     val event = Events(name,desc1,text,datesArray, Color.BLUE)
                     eventArrayEvents.add(event)
-
-
                 }
+                Log.d("DEBUG", "size in Events ${eventArrayEvents.size}")
 
             } catch (e: JSONException) {
                 e.printStackTrace()
@@ -67,6 +67,7 @@ fun requestEvents(context: Context){
         }
     }
     requestQueue.add(stringRequest)
+    //return eventArrayEvents
 }
 
 fun toDate(date: String): LocalDate {

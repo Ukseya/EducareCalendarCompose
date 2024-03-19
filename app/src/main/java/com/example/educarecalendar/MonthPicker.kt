@@ -63,7 +63,7 @@ fun MonthPicker(
     )
 
     var month by remember {
-        mutableStateOf(months[monthNum])
+        mutableStateOf(months[monthNum-1])
     }
 
     var yearInternal by remember {

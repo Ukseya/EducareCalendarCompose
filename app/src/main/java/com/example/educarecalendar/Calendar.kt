@@ -63,7 +63,7 @@ fun CalendarParent(
     var todayMonthFDayNum = remember { mutableIntStateOf(fDayNumReturner(todayMonthFDay.value))}
     var amountOfDays = remember { mutableIntStateOf(amountODaysReturner(monthNum.intValue,yearInternal.intValue))}
     var monthNameInternal = remember { mutableStateOf(monthNameReturner(monthNum.intValue)) }
-    var visible = remember{ mutableStateOf(true)}
+    var visible = remember{ mutableStateOf(false)}
 
     Box(modifier = Modifier
         .fillMaxSize()
@@ -73,8 +73,6 @@ fun CalendarParent(
             Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Top
         ) {
-
-
             Row(
                 //Header; where month year will appear in between month rotation buttons
                 modifier = Modifier
@@ -133,6 +131,8 @@ fun CalendarParent(
 
         }
     }
+    //MothPicker is the AlertDialog that pops up upon launching the activity and is also visible
+    //when clicked on the month,year text
     MonthPicker(
         visible = visible.value,
         monthNum = monthNum.intValue,
@@ -158,6 +158,7 @@ fun CalendarParent(
 
 @Composable
 fun WeekHeader(width: Int) {
+    //Header that indicates which date corresponds to which day
     Row(
         Modifier
             .fillMaxWidth()
@@ -239,10 +240,11 @@ fun CalendarDayContainer(
                     event.calendarName,
                     event.calendarDesc1,
                     LocalDate.of(year.toInt(), monthNum,day.value).toString(),
-                    visibility.floatValue)}
+                    visibility.floatValue)
+                Log.d("DEBUG", "${event.calendarName}, ${event.calendarDesc1}")
+            }
+
         }
-
-
     }
 }
 
@@ -424,7 +426,7 @@ private fun calBreaker(absFirstDay: Int, firstDay: Int, i: Int): Boolean {
     return true
 }
 
-private fun monthNumReturner(monthName: String): Int{
+fun monthNumReturner(monthName: String): Int{
     return when (monthName) {
         "January" -> 1
         "February" -> 2
@@ -442,7 +444,7 @@ private fun monthNumReturner(monthName: String): Int{
     }
 }
 
-private fun monthNameReturner(monthNum: Int):String{
+fun monthNameReturner(monthNum: Int):String{
     return when (monthNum) {
         1 -> "January"
         2 -> "February"
