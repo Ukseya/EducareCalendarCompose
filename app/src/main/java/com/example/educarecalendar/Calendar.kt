@@ -90,7 +90,7 @@ fun CalendarParent(
                             monthNum.intValue,
                             1
                             ).dayOfWeek.toString()
-                        todayMonthFDayNum.value = fDayNumReturner(todayMonthFDay.value)
+                        todayMonthFDayNum.intValue = fDayNumReturner(todayMonthFDay.value)
                         amountOfDays.intValue = amountODaysReturner(monthNum.intValue,yearInternal.intValue)
                         monthNameInternal.value = monthNameReturner(monthNum.intValue)
 
@@ -163,7 +163,7 @@ fun WeekHeader(width: Int) {
         Modifier
             .fillMaxWidth()
             .background(Color.White)
-            .padding(10.dp)) {
+            .padding(vertical = 10.dp)) {
 
         val daysArray = arrayOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
         for (i in 0 until 7){
@@ -198,6 +198,7 @@ fun CalendarDayContainer(
     var eventNum = 0
 
     Column {
+        // 6 rows of weeks(7 day boxes) are created.
         for (i in 1 until 7) {
             var nextLineBool = true
             Row(
@@ -205,7 +206,13 @@ fun CalendarDayContainer(
                     .fillMaxWidth()
                     .background(Color.White)
             ) {
+                //first day value indicates what value the monday of the first month should have,
+                //for instance if a months first day is wednesday firstDay value shall be -1
+                //so when the days are set monday will be -1 tuesday will be 0 and then wednesday
+                //will appear
                 while (firstDay <= 7 * i && nextLineBool) {
+                    //this loop checks if the day value is within the week it should be
+                    //and it breaks with the help of nextLineBool.
                     firstDay++
                     nextLineBool = calBreaker(absFirstDay, firstDay, i)
                     if (firstDay in 1..amountOfDays) {
@@ -220,7 +227,14 @@ fun CalendarDayContainer(
                         dayVal = firstDay,
                         eventNum = eventNum,
                         eventColArr = colorArray,
-                        onDayClick = { internalEventArray.value = getDay(LocalDate.of(year.toInt(),monthNum,it))
+                        onDayClick = {
+                            //under this onClick method the internalEventArray is being filled with
+                            //the selected day's events and if the internalEventArray is empty sets
+                            internalEventArray.value = getDay(
+                                LocalDate.of(
+                                    year.toInt(),
+                                    monthNum,
+                                    it))
                             day.value = it
                             if(internalEventArray.value.size!=0){visibility.floatValue = 1f}
                                      },
@@ -236,12 +250,13 @@ fun CalendarDayContainer(
                 .verticalScroll(rememberScrollState())
         ) {
             for (event in internalEventArray.value){
+                //for every event in the clicked day an event infomenu will be called in this
+                //scrollable column
                 EventInfoMenu(
                     event.calendarName,
                     event.calendarDesc1,
                     LocalDate.of(year.toInt(), monthNum,day.value).toString(),
                     visibility.floatValue)
-                Log.d("DEBUG", "${event.calendarName}, ${event.calendarDesc1}")
             }
 
         }
@@ -251,6 +266,7 @@ fun CalendarDayContainer(
 @Composable
 fun EventInfoMenu(title: String, desc: String, date: String, visibility: Float) {
 
+    //An information menu utilized to portray event information depending on the day clicked
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -295,6 +311,7 @@ fun MonthName(
     modifier: Modifier,
     onClick: () -> Unit
 ) {
+    //Text composable to show the month and year value in a Month, Year format
     Text(text = "$month, $year",
         fontSize = 30.sp,
         fontWeight = FontWeight.Bold,
@@ -307,6 +324,7 @@ fun MonthName(
 fun MonthLeftButton(
     onClick: () -> Unit
 ) {
+    //Button used for decreasing the month value
     Image(
         painter = painterResource(id = R.drawable.baseline_arrow_left_24),
         contentDescription ="Back Button",
@@ -320,6 +338,7 @@ fun MonthLeftButton(
 fun MonthRightButton(
     onClick: () -> Unit
 ) {
+    //Button used for increasing the month value
     Image(
         painter = painterResource(id =R.drawable.baseline_arrow_right_24),
         contentDescription ="Back Button",
@@ -338,13 +357,17 @@ fun DayBox(
     width: Int,
     amountOfDays: Int,
 ){
+    //The day box that contains what day of the month it is and does contain stripes to declare
+    //how many events in a day there are
     Column(
         Modifier
             .width(width.dp)
             .height(60.dp)
             .background(Color.White)
-            .clickable { onDayClick(dayVal) }) {
+            .clickable(enabled = dayVal in 1..amountOfDays) {onDayClick(dayVal)}) {
         if (dayVal in 1..amountOfDays) {
+            //since the dayVal can be a negative number or more than 31 we limit it so that
+            //negative numbers or day numbers more than the amount of days in a month doesn't appear
             Text(
                 text = dayVal.toString(),
                 textAlign = TextAlign.Center,
@@ -352,6 +375,7 @@ fun DayBox(
                     .offset(0.dp, 5.dp)
                     .fillMaxWidth()
             )
+            //below the text a column is created to contain the event stripes
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -360,6 +384,9 @@ fun DayBox(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
 
+                //under these conditions number of events is checked and if it's less than 6
+                //up to 5 stripes will appear, but if it's more than 5, 4 stripes and a plus icon
+                //will appear meaning we have more than 5 events.
                 if (eventNum < 6) {
                     for (i in 0 until eventNum) {
                         Box(
@@ -402,84 +429,3 @@ private fun Preview() {
 }
 
 
-private fun getDay(day: LocalDate):ArrayList<Events>{
-    val arrayTemp = ArrayList<Events>()
-for (event in eventArrayEvents){
-    for (date in event.dateList){
-        if(day == date){
-            arrayTemp.add(event)
-        }
-    }
-}
-    return arrayTemp
-}
-
-private fun calBreaker(absFirstDay: Int, firstDay: Int, i: Int): Boolean {
-    when(absFirstDay){
-        -1 -> if(firstDay==(7*i)-1)return false
-        -2 -> if(firstDay==(7*i)-2)return false
-        -3 -> if(firstDay==(7*i)-3)return false
-        -4 -> if(firstDay==(7*i)-4)return false
-        -5 -> if(firstDay==(7*i)-5)return false
-        -6 -> if(firstDay==(7*i)-6)return false
-    }
-    return true
-}
-
-fun monthNumReturner(monthName: String): Int{
-    return when (monthName) {
-        "January" -> 1
-        "February" -> 2
-        "March" -> 3
-        "April" -> 4
-        "May" -> 5
-        "June" -> 6
-        "July" -> 7
-        "August" -> 8
-        "September" -> 9
-        "October" -> 10
-        "November" -> 11
-        "December" -> 12
-        else -> throw IllegalArgumentException("Invalid month name: $monthName")
-    }
-}
-
-fun monthNameReturner(monthNum: Int):String{
-    return when (monthNum) {
-        1 -> "January"
-        2 -> "February"
-        3 -> "March"
-        4 -> "April"
-        5 -> "May"
-        6 -> "June"
-        7 -> "July"
-        8 -> "August"
-        9 -> "September"
-        10 -> "October"
-        11 -> "November"
-        12 -> "December"
-        else -> throw IllegalArgumentException("Invalid month name: $monthNum")
-    }
-}
-
-private fun amountODaysReturner(monthNum: Int, year: Int):Int{
-    return when(monthNum){
-        1,3,5,7,8,10,12 -> 31
-        4,6,9,11 -> 30
-        2-> if (year%4==0){29}else 28
-        else -> {throw IllegalArgumentException("Invalid month number: $monthNum")}
-    }
-}
-
-private fun fDayNumReturner(dayName:String):Int{
-    return when(dayName){
-        "MONDAY" -> 1
-        "TUESDAY" -> 2
-        "WEDNESDAY" -> 3
-        "THURSDAY" -> 4
-        "FRIDAY" -> 5
-        "SATURDAY" -> 6
-        "SUNDAY" -> 7
-        else -> {throw IllegalArgumentException("Invalid month name: $dayName")}
-    }
-}

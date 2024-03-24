@@ -38,7 +38,6 @@ import com.google.accompanist.flowlayout.FlowCrossAxisAlignment
 import com.google.accompanist.flowlayout.FlowRow
 
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MonthPicker(
     visible: Boolean,

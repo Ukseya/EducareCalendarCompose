@@ -84,7 +84,7 @@ fun generateDates(startDate:LocalDate, endDate:LocalDate): List<LocalDate>{
 }
 
 fun dupeDays(eventArray: ArrayList<Events>): HashMap<LocalDate, Int>{
-    // this function is used to count duplicate event dates and assigns a number depending on the
+    //This function is used to count duplicate event dates and assigns a number depending on the
     //count utilizing hashmap
     val eventDates = oneDateArrayToRuleThemAll(eventArray)
     val hashDate = HashMap<LocalDate,Int>()
